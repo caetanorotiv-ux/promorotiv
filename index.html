@@ -262,6 +262,75 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0d1220;color:#e0e8f
 .ext-hint b{color:#8ab89a}
 .ext-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:1rem}
 @media(max-width:520px){.ext-grid{grid-template-columns:1fr}}
+
+/* ── MOBILE ─────────────────────────────────────────── */
+@media(max-width:600px){
+  .page{padding:1rem .7rem 3rem}
+
+  /* header */
+  .header{gap:8px;margin-bottom:1.2rem}
+  .brand{font-size:16px}
+  .brand-sub{font-size:11px}
+  .logo{width:36px;height:36px;font-size:12px}
+
+  /* tabs */
+  .tabs{margin-bottom:1.2rem}
+  .tab-btn{font-size:12px;height:36px}
+
+  /* bet card fields — empilhar em 2 linhas */
+  .bc-fields{flex-wrap:wrap;gap:8px}
+
+  /* linha 1: stake + odd + tipo */
+  .bc-field:nth-child(1){flex:1;min-width:110px}  /* stake */
+  .bc-field:nth-child(2){width:70px;flex-shrink:0} /* odd */
+  .bc-field:nth-child(3){flex-shrink:0}             /* tipo */
+
+  /* comissão e lucro badge — linha 2 */
+  .bc-field:nth-child(4){flex:1}  /* comissão */
+  .lucro-badge{width:100%;margin-left:0;flex-basis:100%}
+  .lucro-val{font-size:15px}
+
+  /* inputs menores */
+  .rs-wrap{height:38px}
+  .rs-wrap input{font-size:14px}
+  .bc-field input.odd-input{width:64px;font-size:14px;height:38px}
+  .tipo-toggle{height:38px}
+  .tipo-toggle button{padding:0 10px;font-size:12px}
+  .bc-field select.com-select{height:38px;font-size:12px}
+
+  /* rodapé do card */
+  .bc-footer{gap:10px;padding:8px 12px 10px}
+  .bc-check span{font-size:11px}
+  .bc-avancado{font-size:11px}
+
+  /* resultados */
+  .res-header{flex-direction:column;align-items:flex-start;gap:8px}
+  .res-btns{width:100%;justify-content:flex-start}
+  .rb{font-size:11px;height:32px;padding:0 10px}
+
+  /* tabela — scroll horizontal */
+  .tw{border-radius:8px}
+  .rt2 th,.rt2 td{padding:8px 10px;font-size:12px}
+
+  /* sumário — 1 coluna */
+  .res-summary{grid-template-columns:1fr}
+  .rs-item{padding:10px 14px}
+  .rs-item-v{font-size:18px}
+
+  /* duplo green */
+  .dg-box2{flex-direction:column;gap:10px}
+  .dg-b-right{width:100%;text-align:left}
+
+  /* live total */
+  #live-total-row{flex-direction:column;align-items:flex-start;gap:4px}
+
+  /* arredondamento */
+  .round-opts{gap:5px}
+  .ro{height:30px;padding:0 10px;font-size:11px}
+
+  /* add btn */
+  .add-btn{height:36px;font-size:12px}
+}
 .ext-card{background:#162b1f;border:1px solid #1e3a28;border-radius:10px;padding:16px}
 .ext-card h3{font-size:13px;font-weight:600;color:#3dd68c;margin-bottom:12px;display:flex;align-items:center;gap:7px}
 .ef{margin-bottom:10px}
