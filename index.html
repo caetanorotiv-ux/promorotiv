@@ -574,7 +574,7 @@ function render(){
         <label>Comissão</label>
         <select class="com-select" onchange="bets[${i}].com=this.value;tryAutoCalc()">
           <option value="0"   ${(b.com||'0')==='0'  ?'selected':''}>0%</option>
-          <option value="2.8" ${b.com==='2.8'?'selected':''}>2,8%</option>
+          <option value="2.5" ${b.com==='2.5'?'selected':''}>2,5%</option>
           <option value="4.5" ${b.com==='4.5'?'selected':''}>4,5%</option>
           <option value="6.5" ${b.com==='6.5'?'selected':''}>6,5%</option>
         </select>
