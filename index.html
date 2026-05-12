@@ -123,6 +123,12 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0d1220;color:#e0e8f
   outline:none;padding:0 8px;cursor:pointer;min-width:80px
 }
 .bc-field select.com-select:focus{border-color:#2a5080}
+.com-custom-input{
+  height:40px;border:1px solid #1e3050;border-radius:8px;
+  background:#0d1824;color:#e8f0eb;font-size:13px;font-weight:600;
+  outline:none;padding:0 8px;width:80px;text-align:center
+}
+.com-custom-input:focus{border-color:#2a5080}
 
 /* badge LUCRO SE ESTE BATER */
 .lucro-badge{
@@ -423,6 +429,9 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0d1220;color:#e0e8f
         <button class="rb dg" onclick="document.getElementById('dg-section').scrollIntoView({behavior:'smooth'})">
           <i class="ti ti-bolt"></i> Duplo Green
         </button>
+        <button class="rb" onclick="copyResult()">
+          <i class="ti ti-share"></i> Compartilhar
+        </button>
         <button class="rb lm" onclick="clearAll()">
           <i class="ti ti-trash"></i> Limpar
         </button>
@@ -470,7 +479,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0d1220;color:#e0e8f
         <div class="rs-item-v" id="rs-lucro">—</div>
       </div>
       <div class="rs-item">
-        <div class="rs-item-l"><i class="ti ti-chart-bar" style="font-size:11px"></i> Rentabilidade (ROI)</div>
+        <div class="rs-item-l" id="rs-roi-lbl"><i class="ti ti-chart-bar" style="font-size:11px"></i> Rentabilidade (ROI)</div>
         <div class="rs-item-v" id="rs-roi">—</div>
       </div>
     </div>
@@ -510,11 +519,16 @@ let _ct; function tryAutoCalc(){
 let bets=[], roundTo=0, betId=0, lastCalc={};
 
 function addBet(casa='',tipo='back',odd='',boost='',stake='',fixado=false,freebet=false,com='0',mercado='',avancado=false){
-  bets.push({id:++betId,casa,mercado,tipo,odd,boost,stake,fixado,freebet,com,avancado});
+  bets.push({id:++betId,casa,mercado,tipo,odd,boost,stake,fixado,freebet,com,comCustom:false,avancado});
   render();
 }
 function toggleAvancado(id){const b=bets.find(b=>b.id===id);if(b){b.avancado=!b.avancado;render();}}
-function setBetCom(id,v){const b=bets.find(b=>b.id===id);if(b){b.com=v;render();}}
+function setBetComSel(id,v){
+  const b=bets.find(b=>b.id===id);if(!b)return;
+  if(v==='custom'){b.comCustom=true;}
+  else{b.comCustom=false;b.com=v;}
+  render();tryAutoCalc();
+}
 function remBet(id){bets=bets.filter(b=>b.id!==id);render();hintTotal();}
 
 function toggleLock(id){
@@ -569,15 +583,30 @@ function render(){
       ?`<span style="font-size:11px;color:#c07830;font-weight:600">⚠ Risco: R$&nbsp;${fmt(layS*(layO-1))}</span>`:'';
 
     // comissão select (só para lay)
+    const presets=['0','2.5','2.8','4.5','6.5'];
+    const isCustom=b.comCustom||(!presets.includes(b.com||'0')&&(b.com||'0')!=='0'&&b.com!=='');
     const comSelect=b.tipo==='lay'?`
       <div class="bc-field">
         <label>Comissão</label>
-        <select class="com-select" onchange="bets[${i}].com=this.value;tryAutoCalc()">
-          <option value="0"   ${(b.com||'0')==='0'  ?'selected':''}>0%</option>
-          <option value="2.5" ${b.com==='2.5'?'selected':''}>2,5%</option>
-          <option value="4.5" ${b.com==='4.5'?'selected':''}>4,5%</option>
-          <option value="6.5" ${b.com==='6.5'?'selected':''}>6,5%</option>
-        </select>
+        ${isCustom
+          ? `<div style="display:flex;gap:4px;align-items:center">
+              <input class="com-custom-input" type="text" inputmode="decimal"
+                placeholder="ex: 3.5" value="${b.comCustom&&!presets.includes(b.com)?b.com:''}"
+                oninput="bets[${i}].com=this.value;tryAutoCalc()"
+                onchange="tryAutoCalc()">
+              <button onclick="bets[${i}].comCustom=false;bets[${i}].com='0';render();tryAutoCalc()"
+                style="width:26px;height:26px;border-radius:6px;border:1px solid #1e3050;
+                background:#0d1824;color:#5a7a8a;cursor:pointer;font-size:14px;flex-shrink:0">×</button>
+            </div>`
+          : `<select class="com-select" onchange="setBetComSel(${b.id},this.value)">
+              <option value="0"   ${(b.com||'0')==='0'  ?'selected':''}>0%</option>
+              <option value="2.5" ${b.com==='2.5'?'selected':''}>2,5%</option>
+              <option value="2.8" ${b.com==='2.8'?'selected':''}>2,8%</option>
+              <option value="4.5" ${b.com==='4.5'?'selected':''}>4,5%</option>
+              <option value="6.5" ${b.com==='6.5'?'selected':''}>6,5%</option>
+              <option value="custom">Digitar %</option>
+            </select>`
+        }
       </div>`:'';
 
     // boost (opções avançadas)
@@ -821,8 +850,18 @@ function calculate(){
   lucroEl.className='rs-item-v '+(gP>=0?'g':'r');
   document.getElementById('rs-invest').textContent=`R$ ${fmt(totalInvest)}`;
   const roiEl=document.getElementById('rs-roi');
-  roiEl.textContent=`${roi.toFixed(2)}%`;
-  roiEl.className='rs-item-v '+(roi>=0?'g':'r');
+  const roiLbl=document.getElementById('rs-roi-lbl');
+  if(hasFB){
+    const fbTotal=vb.reduce((s,b,i)=>s+(b.freebet?stakes[i]:0),0);
+    const extr=fbTotal>0?(gP/fbTotal*100):0;
+    roiLbl.innerHTML='<i class="ti ti-gift" style="font-size:11px"></i> Extração Freebet';
+    roiEl.textContent=`${extr.toFixed(2)}%`;
+    roiEl.className='rs-item-v '+(extr>=0?'g':'r');
+  } else {
+    roiLbl.innerHTML='<i class="ti ti-chart-bar" style="font-size:11px"></i> Rentabilidade (ROI)';
+    roiEl.textContent=`${roi.toFixed(2)}%`;
+    roiEl.className='rs-item-v '+(roi>=0?'g':'r');
+  }
 
   document.getElementById('results').classList.add('visible');
 }
